@@ -27,7 +27,7 @@ public class TEma {
     
     var bus: [Bus?]
    
-    init() {
+    public init() {
         cpu = CPU()
         mmu = MMU()
 
