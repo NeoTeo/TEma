@@ -150,22 +150,22 @@ public class Bus {
     }
     
     
-    func busRead(a: UInt8) -> UInt8 {
+    public func busRead(a: UInt8) -> UInt8 {
         comms(self, a & 0x0F, 0)
         return buffer[Int(a & 0xF)]
     }
     
-    func busRead16(a: UInt8) -> UInt16 {
+    public func busRead16(a: UInt8) -> UInt16 {
         return UInt16(busRead(a: a)) << 8 | UInt16(busRead(a: a + 1))
     }
     
-    func busWrite(a: UInt8, b: UInt8) {
+    public func busWrite(a: UInt8, b: UInt8) {
         buffer[Int(a & 0xF)] = b
         comms(self, a & 0x0F, 1)
         // MARK: confirm that the 0 is not needed in the 0x0F
     }
     
-    func busWrite16(a: UInt8, b: UInt16) {
+    public func busWrite16(a: UInt8, b: UInt16) {
         busWrite(a:a, b: UInt8(b >> 8))
         busWrite(a:a+1, b: UInt8(b & 0xFF))
     }
