@@ -22,10 +22,10 @@ public class TEma {
     static public let displayHResolution = 640
     static public let displayVResolution = 480
     
-    var cpu: CPU
-    var mmu: MMU
+    public var cpu: CPU
+    public var mmu: MMU
     
-    var bus: [Bus?]
+    public var bus: [Bus?]
    
     public init() {
         cpu = CPU()
