@@ -44,7 +44,7 @@ public class TEma {
         cpu.sys = self
     }
     
-    func registerBus(id: Bus.Device, name: String, comms: @escaping (Bus, UInt8, UInt8)->Void) -> Bus {
+    public func registerBus(id: Bus.Device, name: String, comms: @escaping (Bus, UInt8, UInt8)->Void) -> Bus {
         print("Registered bus: \(id) \(name) at \(id.rawValue << 4)")
         let newbus = Bus(id: id, owner: self, comms: comms)
         bus[Int(id.rawValue)] = newbus
@@ -133,7 +133,7 @@ public class Bus {
     // eg. on a console bus 0x2 is the read port and 0x8 is write port.
     public var buffer = [UInt8](repeating: 0, count: 16)
     
-    enum Device: UInt8 {
+    public enum Device: UInt8 {
         case system
         case console
         case display
