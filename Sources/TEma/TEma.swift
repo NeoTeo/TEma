@@ -51,7 +51,7 @@ public class TEma {
         return newbus
     }
     
-    func loadRam(destAddr: UInt16, ram: [UInt8]) throws {
+    public func loadRam(destAddr: UInt16, ram: [UInt8]) throws {
         guard ram.count+Int(destAddr) <= MMU.byteSize else { throw SystemError.memoryLoading }
 //        guard ram.count+Int(destAddr) <= mmu.bank.count else { throw SystemError.memoryLoading }
         /// Would be faster with pointer juggling
@@ -62,7 +62,7 @@ public class TEma {
         }
     }
     
-    func tests() {
+    public func tests() {
         func testStack() throws {
             try cpu.pStack.push8(42)
             let val = try cpu.pStack.pop8()
@@ -131,7 +131,7 @@ public class Bus {
     let comms: ((Bus, UInt8, UInt8)->(Void))
     // The position in the buffer represents a particular "port" for the device we're communicating with
     // eg. on a console bus 0x2 is the read port and 0x8 is write port.
-    var buffer = [UInt8](repeating: 0, count: 16)
+    public var buffer = [UInt8](repeating: 0, count: 16)
     
     enum Device: UInt8 {
         case system
@@ -349,7 +349,7 @@ public class CPU {
     /// Return stack  256 bytes, unsigned
     var rStack = Stack()
     
-    var pc: UInt16 = 0
+    public var pc: UInt16 = 0
     
     /// Interconnects
     var sys: TEma!
@@ -363,7 +363,7 @@ public class CPU {
         rStack.copyIdx = 0
     }
     
-    func run(ticks: Int) {
+    public func run(ticks: Int) {
         var tc = ticks
         while tc > 0 {
             try? clockTick()
@@ -377,7 +377,7 @@ public class CPU {
     
     // caller must ensure these are not called concurrently. Perhaps not use interrupts next time?
     // Uses irQ for syncronization.
-    func interruptEnable(bus: Bus) {
+    public func interruptEnable(bus: Bus) {
         let IME = sys.mmu.read(address: interruptMasterEnable)
         guard IME == 1 else { return }
         // signal that an interrupt is now in progress. Must be reset by the interrupt function.
@@ -1139,24 +1139,24 @@ public class MMU {
         bank = [UInt8](repeating: 0, count: 65536)
     }
     
-    func write16(value: UInt16, address: UInt16) {
+    public func write16(value: UInt16, address: UInt16) {
         write(value: UInt8(value >> 8), address: address)
         write(value: UInt8(value & 0xFF), address: address+1)
     }
     
-    func write(value: UInt8, address: UInt16) {
+    public func write(value: UInt8, address: UInt16) {
         // MARK: Occasional crash here when i don't use the ramQ.sync. Grok & fix!
 //        ramQ.sync(flags: .barrier) {
             self.bank[Int(address)] = value
 //        }
     }
 
-    func read16(address: UInt16) -> UInt16 {
+    public func read16(address: UInt16) -> UInt16 {
 //        return (UInt16(bank[Int(address)]) << 8) | UInt16(bank[Int(address+1)])
         return (UInt16(read(address: address)) << 8) | UInt16(read(address: address+1))
     }
 
-    func read(address: UInt16) -> UInt8 {
+    public func read(address: UInt16) -> UInt8 {
         // match ramQ use with write
 //        ramQ.sync {
             return bank[Int(address)]
@@ -1165,20 +1165,20 @@ public class MMU {
     }
 }
 
-func write16(mem: inout [UInt8], value: UInt16, address: UInt16) {
+public func write16(mem: inout [UInt8], value: UInt16, address: UInt16) {
     write(mem: &mem, value: UInt8(value >> 8), address: address)
     write(mem: &mem, value: UInt8(value & 0xFF), address: address+1)
 }
 
-func write(mem: inout [UInt8], value: UInt8, address: UInt16) {
+public func write(mem: inout [UInt8], value: UInt8, address: UInt16) {
     
     mem[Int(address)] = value
 }
 
-func read16(mem: inout [UInt8], address: UInt16) -> UInt16 {
+public func read16(mem: inout [UInt8], address: UInt16) -> UInt16 {
     return (UInt16(mem[Int(address)]) << 8) | UInt16(mem[Int(address+1)])
 }
 
-func read(mem: inout [UInt8], address: UInt16) -> UInt8 {
+public func read(mem: inout [UInt8], address: UInt16) -> UInt8 {
     return mem[Int(address)]
 }
