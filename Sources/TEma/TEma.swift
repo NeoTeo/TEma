@@ -1,12 +1,6 @@
-//public struct TEma {
-//    public private(set) var text = "Hello, World!"
 //
-//    public init() {
-//    }
-//}
-//
-//  TEMA.swift
-//  TEMA
+//  TEma.swift
+//  TEma, a stack-based computer.
 //
 //  Created by teo on 24/07/2021.
 //
@@ -53,74 +47,14 @@ public class TEma {
     
     public func loadRam(destAddr: UInt16, ram: [UInt8]) throws {
         guard ram.count+Int(destAddr) <= MMU.byteSize else { throw SystemError.memoryLoading }
-//        guard ram.count+Int(destAddr) <= mmu.bank.count else { throw SystemError.memoryLoading }
-        /// Would be faster with pointer juggling
-//        for idx in 0 ..< ram.count {
+        
         for idx in ram.indices {
-//            mmu.bank[Int(destAddr)+idx] = ram[idx]
             mmu.write(value: ram[idx], address: destAddr+UInt16(idx))
         }
     }
     
     public func tests() {
-        func testStack() throws {
-            try cpu.pStack.push8(42)
-            let val = try cpu.pStack.pop8()
-            print("stack popped \(val)")
-            try cpu.pStack.push8(42)
-            try cpu.pStack.push8(69)
-            try cpu.pStack.push8(33)
-            let a = try cpu.pStack.popCopy8()
-            let b = try cpu.pStack.popCopy8()
-            let c = try cpu.pStack.pop8()
-            print("stack popped a: \(a), b: \(b), c: \(c)")
-            
-            try cpu.pStack.push8(42)
-            try cpu.pStack.push8(69)
-            try cpu.pStack.push8(33)
-            let d = try cpu.pStack.popCopy8()
-            try cpu.pStack.push8(88)
-            let e = try cpu.pStack.popCopy8()
-            let f = try cpu.pStack.pop8()
-            print("stack popped d: \(d), e: \(e), f: \(f)")
-        }
-        
-        func testStackLimit() throws {
-            // first make sure stack size is set to 3
-            try cpu.pStack.push8(42)
-            try cpu.pStack.push8(42)
-            try cpu.pStack.push8(69)
-//            try cpu.pStack.push8(33)    // uncomment this line to get an overflow error
-            
-//            _ = try cpu.pStack.pop8()
-//            _ = try cpu.pStack.pop8()
-//            _ = try cpu.pStack.pop8()
-//            _ = try cpu.pStack.pop8()   // uncomment this line to get an underflow error
-            
-            let _ = try cpu.pStack.popCopy8()
-            let _ = try cpu.pStack.popCopy8()
-            let _ = try cpu.pStack.popCopy8()
-//            let _ = try cpu.pStack.popCopy8() // uncomment this line to get an underflow error
-        }
 
-        func testStackLimit16() throws {
-            // first make sure stack size is set to 3
-            try cpu.pStack.push16(360)
-//            try cpu.pStack.push16(420)    // uncomment this line to get an overflow error
-            
-//            _ = try cpu.pStack.pop16()
-//            _ = try cpu.pStack.pop16()   // uncomment this line to get an underflow error
-            
-            let _ = try cpu.pStack.popCopy16()
-//            let _ = try cpu.pStack.popCopy16() // uncomment this line to get an underflow error
-        }
-
-        do {
-//            try testStack()
-            try testStackLimit16()
-        } catch {
-            print("TEma tests failed with \(error)")
-        }
     }
 }
 
