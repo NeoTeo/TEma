@@ -238,7 +238,7 @@ class Stack {
 }
 
 /// Central Processing Unit
-class CPU {
+public class CPU {
         
     /// A possible alternative is to define each operation as a method and then
     /// have an array of methods whose position matches their opcode.
@@ -904,7 +904,7 @@ class CPU {
 }
 
 /// Memory Management Unit
-class MMU {
+public class MMU {
     static let byteSize = 65536
     let ramQ = DispatchQueue.global(qos: .userInitiated)
 //    let ramQ = DispatchQueue(label: "thread-safe-obj", attributes: .concurrent)
