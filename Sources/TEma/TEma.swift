@@ -378,11 +378,11 @@ public class CPU {
 //        if dbgTickCount == 195 {
 //            print("stop")
 //        }
-//        if pc == 0x0100 {
-//            print("break1")
-////            print("pStack count: \(pStack.count), copyidx: \(pStack.copyIdx) ")
-//            debugDump()
-//        }
+        if pc == 0x0468 {
+            print("break1")
+//            print("pStack count: \(pStack.count), copyidx: \(pStack.copyIdx) ")
+            debugDump()
+        }
 
         //print("clockTick \(dbgTickCount): read opcode: \(String(describing: op)) at pc \(pc)")
         if op == nil { fatalError("op is nil") }
