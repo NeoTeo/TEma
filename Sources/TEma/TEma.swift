@@ -180,7 +180,7 @@ public class CPU {
     /// With the retrieved method you can then just call it
     /// (using op(CPU)() because methods are curried. see http://web.archive.org/web/20201225064902/https://oleb.net/blog/2014/07/swift-instance-methods-curried-functions/)
     
-    static let boolVal = 0x01
+    static let boolVal: UInt8 = 0x01
     
     // NOTE: Any changes in the number or order of the opcodes needs to be reflected in the TEas assembler.
     // Also, exactly duplicate short opcodes so each is a fixed (0x20) offset from its byte counterpart.
@@ -522,21 +522,21 @@ public class CPU {
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
-            try sourceStack.push8( b == a ? boolVal : 0 )
+            try sourceStack.push8( b == a ? CPU.boolVal : 0 )
             pc += 1
 
         case .neq, .neq16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
-            try sourceStack.push8( b != a ? boolVal : 0 )
+            try sourceStack.push8( b != a ? CPU.boolVal : 0 )
             pc += 1
 
         case .grt, .grt16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
-            try sourceStack.push8( b > a ? boolVal : 0 )
+            try sourceStack.push8( b > a ? CPU.boolVal : 0 )
             
             pc += 1
 
@@ -544,7 +544,7 @@ public class CPU {
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
-            try sourceStack.push8( b < a ? boolVal : 0 )
+            try sourceStack.push8( b < a ? CPU.boolVal : 0 )
             
             pc += 1
 
