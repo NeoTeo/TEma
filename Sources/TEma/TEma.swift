@@ -378,6 +378,7 @@ public class CPU {
 //        if dbgTickCount == 195 {
 //            print("stop")
 //        }
+        
         if pc == 0x0468 {
             print("break1")
 //            print("pStack count: \(pStack.count), copyidx: \(pStack.copyIdx) ")
