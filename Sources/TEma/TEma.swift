@@ -379,7 +379,7 @@ public class CPU {
 //            print("stop")
 //        }
         
-        if pc == 0x0468 {
+        if pc == 0x02EF {
             print("break1")
 //            print("pStack count: \(pStack.count), copyidx: \(pStack.copyIdx) ")
             debugDump()
