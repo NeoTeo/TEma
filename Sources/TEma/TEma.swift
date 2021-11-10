@@ -394,13 +394,11 @@ public class CPU {
             pc =  0
             
         case .nop:
-            //pc += 1
             print("nop")
             
         /// stack operations
         case .lit:
             /// next value in memory assumed to be the value to push to pstack
-            //pc += 1
             let lit = sys.mmu.read(address: pc)
             try sourceStack.push8(lit)
             pc += 1
@@ -410,13 +408,11 @@ public class CPU {
 //            _ = try pop8(sourceStack)
 //            let val = try pop8(sourceStack)
 //            print("popped value \(String(describing: val))")
-            //pc += 1
 
         case .dup, .dup16:
             let val = try pop(sourceStack)
             try push(sourceStack, val)
             try push(sourceStack, val)
-            //pc += 1
             
         case .ovr, .ovr16: // ( b a -- b a b )
             let a = try pop(sourceStack)
@@ -425,8 +421,6 @@ public class CPU {
             try push(sourceStack, b)
             try push(sourceStack, a)
             try push(sourceStack, b)
-            
-            //pc += 1
             
         case .rot, .rot16: // ( c b a -- b a c )
             
@@ -437,8 +431,6 @@ public class CPU {
             try push(sourceStack, b)
             try push(sourceStack, a)
             try push(sourceStack, c)
-
-            //pc += 1
             
         case .swp, .swp16:
             let a = try pop(sourceStack)
@@ -446,13 +438,10 @@ public class CPU {
 
             try push(sourceStack, a)
             try push(sourceStack, b)
-            
-            //pc += 1
 
         case .sts, .sts16:  // stack to stack transfer
             let a  = try pop(sourceStack)
             try push(targetStack, a)
-            //pc += 1
 
         /// arithmetic operations
         case .add, .add16:
@@ -461,15 +450,11 @@ public class CPU {
 
             try push(sourceStack, b &+ a )
             
-            //pc += 1
-            
         case .sub, .sub16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
             try push(sourceStack, b &- a )
-            
-            //pc += 1
             
         case .mul, .mul16:
             let a = try pop(sourceStack)
@@ -477,8 +462,6 @@ public class CPU {
 
             try push(sourceStack, b &* a )
 
-            //pc += 1
-            
         case .div, .div16:
 
             let a = try pop(sourceStack)
@@ -486,29 +469,24 @@ public class CPU {
 
             try push(sourceStack, b / a )
             
-            //pc += 1
-            
         /// bitwise logic
         case .and, .and16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
             try push(sourceStack, b & a )
-            //pc += 1
 
         case .ior, .ior16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
             try push(sourceStack, b | a )
-            //pc += 1
             
         case .xor, .xor16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
             try push(sourceStack, b ^ a )
-            //pc += 1
             
         case .shi: // ( value bitshift -- result )
             let a = try pop8(sourceStack)
@@ -516,7 +494,6 @@ public class CPU {
             /// use the three least significant bits of the most significant nibble of a to shift up by 0 to 7 bits (the max needed for a byte) and
             /// use the three least significant bits of the least significant nibble of a to shift down by 0 to 7 bits.
             try sourceStack.push8((b >> (a & 0x07)) << ((a & 0x70) >> 4))
-            //pc += 1
             
         /// logic operations
         case .equ, .equ16:
@@ -524,14 +501,12 @@ public class CPU {
             let b = try pop(sourceStack)
 
             try sourceStack.push8( b == a ? CPU.boolVal : 0 )
-            //pc += 1
 
         case .neq, .neq16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
             try sourceStack.push8( b != a ? CPU.boolVal : 0 )
-            //pc += 1
 
         case .grt, .grt16:
             let a = try pop(sourceStack)
@@ -539,21 +514,12 @@ public class CPU {
 
             try sourceStack.push8( b > a ? CPU.boolVal : 0 )
             
-            //pc += 1
 
         case .lst, .lst16:
             let a = try pop(sourceStack)
             let b = try pop(sourceStack)
 
             try sourceStack.push8( b < a ? CPU.boolVal : 0 )
-            
-            //pc += 1
-
-//        case .neg:
-//            let a = try pStack.pop8()
-//            try pStack.push8( a == 0 ? boolValue : 0 )
-//
-//            pc += 1
             
         case .jmp: /// unconditional relative jump
             let a = try pop8(sourceStack)
@@ -564,8 +530,8 @@ public class CPU {
         case .jnz: /// conditional (not zero) relative jump
             let a = try pop8(sourceStack)   // address offset
             let b = try pop8(sourceStack)   // condition
-// MARK: check here
-            pc = b != 0 ?UInt16(bitPattern: Int16(bitPattern: pc) + Int16(Int8(bitPattern: a))) : pc //+ 1
+
+            pc = b != 0 ?UInt16(bitPattern: Int16(bitPattern: pc) + Int16(Int8(bitPattern: a))) : pc
 
         case .jsr:  /// jump to subroutine at offset, first storing the return address on the return stack
             let a = try pop8(sourceStack)
@@ -580,31 +546,26 @@ public class CPU {
         case .lda:  // load the byte at the given absolute address onto the top of the parameter stack.
             let a = try pop16(sourceStack)
             try sourceStack.push8(sys.mmu.read(address: a))
-            //pc += 1
             
         case .sta:  // ( value addr -- ) store the byte on top of the parameter stack to the given absolute address.
             let a = try pop16(sourceStack)
             let b = try pop8(sourceStack)
             sys.mmu.write(value: b, address: a)
-            //pc += 1
             
         case .ldr:  // load the byte at the given relative address onto the top of the parameter stack.
             let a = try pop8(sourceStack)
             try sourceStack.push8(sys.mmu.read(address: UInt16(bitPattern: Int16(bitPattern: pc) + Int16(Int8(bitPattern: a)))))
-            //pc += 1
             
         case .str: // ( value addr -- ) store the byte on top of the parameter stack to the given relative address.
             let a = try pop8(sourceStack)
             let b = try pop8(sourceStack)
             sys.mmu.write(value: b, address: UInt16(bitPattern: Int16(bitPattern: pc) + Int16(Int8(bitPattern: a))))
-            //pc += 1
             
         case .bsi:
             let a = try pop8(sourceStack)
             if let bus = sys.bus[Int(a >> 4)] {
                 try sourceStack.push8(bus.busRead(a: a))
             }
-            //pc += 1
     
         case .bso: /// the  most significant nibble in a is the bus id and the lsn is the position in the bus.buffer (the port) that b is placed
             let a = try pop8(sourceStack)
@@ -613,167 +574,21 @@ public class CPU {
             if let bus = sys.bus[Int(a >> 4)] {
                 bus.busWrite(a: a, b: b)
             }
-            //pc += 1
             
         // MARK: Implement short operations below.
         case .lit16:
             /// next value in memory assumed to be the value to push to pstack
             /// lit16 consists of an opcode byte followed by two bytes of data = 3 bytes total
-            //pc += 1
             let lit = sys.mmu.read16(address: pc)
             pc += 2 // advance pc by the two bytes just read.
             try sourceStack.push16(lit)
             
-            /*
-        case .pop16:
-            _ = try pop16(sourceStack)
-//            let val = try pop16(sourceStack)
-//            print("popped short value \(String(describing: val))")
-            pc += 1
-
-        case .dup16:
-            try sourceStack.push16(try sourceStack.popCopy16())
-            pc += 1
-             
-        case .ovr16:
-
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-            
-            try sourceStack.push16(b)
-            try sourceStack.push16(a)
-            try sourceStack.push16(b)
-            
-            pc += 1
-             
-        case .rot16:
-            
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-            let c = try pop16(sourceStack)
-            
-            try sourceStack.push16(b)
-            try sourceStack.push16(a)
-            try sourceStack.push16(c)
-
-            pc += 1
-             
-        case .swp16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16(a)
-            try sourceStack.push16(b)
-            
-            pc += 1
-             
-        case .sts16: // stack to stack transfer
-            let a = try pop16(sourceStack)
-            try targetStack.push16(a)
-            
-            pc += 1
-             
-
-        /// arithmetic operations
-        case .add16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-            
-            try sourceStack.push16(b &+ a)
-            
-            pc += 1
-             
-        case .sub16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16( b &- a )
-            
-            pc += 1
-             
-        case .mul16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16( b &* a )
-
-            pc += 1
-            
-        case .div16:
-
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16( b / a )
-            
-            pc += 1
-             
-        case .and16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16( b & a )
-            pc += 1
-             
-        case .ior16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16( b | a )
-            pc += 1
-             
-        case .xor16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push16( b ^ a )
-            pc += 1
-             */
         case .shi16: // ( value bitshift -- result )
             let a = try pop8(sourceStack)
             let b = try pop16(sourceStack)
             /// use the four least significant bits of the most significant nibble of a to shift up by 0 to f bits (the max needed for a short) and
             /// use the four least significant bits of the least significant nibble of a to shift down by 0 to f bits.
             try sourceStack.push16((b >> (a & 0x0f)) << ((a & 0xf0) >> 4))
-            //pc += 1
-            
-        /*
-        /// logic operations
-        case .equ16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push8( b == a ? 0xFF : 0 )
-            pc += 1
-         
-        case .neq16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push8( b != a ? 0xFF : 0 )
-            pc += 1
-
-        case .grt16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push8( b > a ? 0xFF : 0 )
-            
-            pc += 1
-
-        case .lst16:
-            let a = try pop16(sourceStack)
-            let b = try pop16(sourceStack)
-
-            try sourceStack.push8( b < a ? 0xFF : 0 )
-            
-            pc += 1
-         */
-//        case .neg16:
-//            let a = try sourceStack.pop16()
-//            try sourceStack.push8( a == 0 ? 0xFF : 0 )
-//
-//            pc += 1
         
         case .jmp16: /// unconditional absolute jump
             pc = try pop16(sourceStack)
@@ -782,14 +597,12 @@ public class CPU {
             let a = try pop16(sourceStack)
             let b = try pop8(sourceStack)
 
-//            pc = (b == 0) ? pc + 1 : a
             pc = (b == 0) ? pc : a
             
         case .jsr16:  /// jump to subroutine at absolute address, first storing the return address on the return stack
             let a = try pop16(sourceStack)
             
             /// store the current pc 16 bit address as 2 x 8 bits on the return stack, msb first
-//            try targetStack.push16(pc+1)
             try targetStack.push16(pc)
             pc = a
             
@@ -797,31 +610,26 @@ public class CPU {
         case .lda16:  // load the short at the given absolute address onto the top of the parameter stack.
             let a = try pop16(sourceStack)
             try sourceStack.push16(sys.mmu.read16(address: a))
-            //pc += 1
             
         case .sta16:  // ( value addr -- ) store the short on top of the parameter stack to the given absolute address.
             let a = try pop16(sourceStack)
             let b = try pop16(sourceStack)
             sys.mmu.write16(value: b, address: a)
-            //pc += 1
             
         case .ldr16:  // load the short at the given relative address onto the top of the parameter stack.
             let a = try pop8(sourceStack)
             try sourceStack.push16(sys.mmu.read16(address: UInt16(bitPattern: Int16(bitPattern: pc) + Int16(Int8(bitPattern: a)))))
-            //pc += 1
             
         case .str16: // ( value addr -- ) store the short on top of the parameter stack to the given relative address.
             let a = try pop8(sourceStack)
             let b = try pop16(sourceStack)
             sys.mmu.write16(value: b, address: UInt16(bitPattern: Int16(bitPattern: pc) + Int16(Int8(bitPattern: a))))
-            //pc += 1
 
         case .bsi16: // NB: untested
             let a = try pop8(sourceStack)
             if let bus = sys.bus[Int(a >> 4)] {
                 try sourceStack.push16(bus.busRead16(a: a))
             }
-            //pc += 1
 
         case .bso16: /// the  most significant nibble in a is the bus id and the lsn is the position in the bus.buffer that b is placed
             let a = try pop8(sourceStack)
@@ -830,7 +638,6 @@ public class CPU {
             if let bus = sys.bus[Int(a >> 4)] {
                 bus.busWrite16(a: a, b: b)
             }
-            //pc += 1
             
         default:
             print("unimplemented opcode: \(String(describing: op))")
@@ -850,229 +657,6 @@ public class MMU {
     /// 65536 bytes of memory
    private var bank = [UInt8](repeating: 0, count: byteSize)
     
-    /*
-    func debugInit() {
-        
-        func opwrite(value: CPU.OpCode, address: UInt16) -> UInt16{
-            bank[Int(address)] = value.rawValue
-            
-            return address + 1
-        }
-        
-        func test42() {
-            clear()
-            var addr: UInt16 = 0
-            
-            /// code will soon be generated by my TEMAsm compiler
-            /// until then we place TEMA machine code directly into memory
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 4, address: addr)
-            addr += 1
-            addr = opwrite(value: .lit, address: addr)
-            
-            write(value: 3, address: addr)
-            addr += 1
-            addr = opwrite(value: .add, address: addr)
-            
-            addr = opwrite(value: .lit, address: addr)
-            
-            write(value: 6, address: addr)
-            addr += 1
-            addr = opwrite(value: .mul, address: addr)
-            
-            addr = opwrite(value: .pop, address: addr)
-
-        }
-        
-        func testRot() {
-            
-            clear()
-            var addr: UInt16 = 0
-
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 1, address: addr)
-            addr += 1
-            
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 2, address: addr)
-            addr += 1
-            
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 3, address: addr)
-            addr += 1
-
-            addr = opwrite(value: .rot, address: addr)
-            
-            addr = opwrite(value: .pop, address: addr)
-            addr = opwrite(value: .pop, address: addr)
-            addr = opwrite(value: .pop, address: addr)
-            
-            infLoop(addr: addr)
-        }
-        
-        func infLoop(addr: UInt16) {
-            
-            
-            var adr = opwrite(value: .lit, address: addr)
-            
-            let offset = UInt8(bitPattern: Int8(-2))
-            write(value: offset, address: adr)
-            adr += 1
-
-            opwrite(value: .jmp, address: adr)
-        }
-        
-        func testOvr() {
-            
-            clear()
-            var addr: UInt16 = 0
-
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 1, address: addr)
-            addr += 1
-            
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 2, address: addr)
-            addr += 1
-            
-            addr = opwrite(value: .ovr, address: addr)
-            
-            addr = opwrite(value: .pop, address: addr)
-            addr = opwrite(value: .pop, address: addr)
-            addr = opwrite(value: .pop, address: addr)
-            
-            infLoop(addr: addr)
-        }
-        
-        func testLoop() {
-            clear()
-            var addr: UInt16 = 0
-            
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 0, address: addr)
-            addr += 1
-            
-            /// label to jump to here
-            let beginLabel = addr
-
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 1, address: addr)
-            addr += 1
-
-            addr = opwrite(value: .add, address: addr)
-
-            addr = opwrite(value: .dup, address: addr)
-            
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 7, address: addr)
-            addr += 1
-
-            addr = opwrite(value: .neq, address: addr)
-//            addr = opwrite(value: .equ, address: addr)
-//
-//            addr = opwrite(value: .neg, address: addr)
-
-            addr = opwrite(value: .lit, address: addr)
-            let offset = UInt8(bitPattern: Int8(Int16(beginLabel) - Int16(addr + 1)))
-            write(value: offset, address: addr)
-            addr += 1
-            addr = opwrite(value: .jnz, address: addr)
-            
-            addr = opwrite(value: .pop, address: addr)
-            
-            infLoop(addr: addr)
-        }
-
-        func testReadWrite16() {
-            clear()
-            var addr: UInt16 = 0
-            
-            addr = opwrite(value: .lit16, address: addr)
-            let writeVal: UInt16 = 365
-            /// The second value is .buo's b parameter
-            write16(value: writeVal, address: addr)
-            
-
-            let val = read16(address: addr)
-            assert(val == writeVal)
-            infLoop(addr: addr)
-        }
-
-        func testReadWrite8() {
-            clear()
-            var addr: UInt16 = 0
-            
-            addr = opwrite(value: .lit, address: addr)
-            let writeVal: UInt8 = 42
-            /// The second value is .buo's b parameter
-            write(value: writeVal, address: addr)
-            
-
-            let val = read(address: addr)
-            assert(val == writeVal)
-            infLoop(addr: addr)
-        }
-
-        func testBus() {
-            clear()
-            var addr: UInt16 = 0
-
-            /// --------- set x coord
-            
-            addr = opwrite(value: .lit16, address: addr)
-            /// The second value is .buo's b parameter
-            write16(value: 250, address: addr)
-            addr += 2
-
-            addr = opwrite(value: .lit, address: addr)
-            /// The first value is buo's first parameter:
-            /// The top 4 bits of a are the bus id, bottom 4 bits are the index in the bus.buffer
-            /// Since we're writing to the display we know it expects the x parameter in bus.buffer[0x8]
-            /// and the y parameter in bus.buffer[0xA]
-            /// 0x8 is the pixel x position
-            write(value: (Bus.Device.display.rawValue << 4) | 0x8, address: addr)
-            addr += 1
-            
-            // expects a byte and a short on the stack
-            addr = opwrite(value: .bso16, address: addr)
-
-            /// --------- set y coord
-            
-            addr = opwrite(value: .lit16, address: addr)
-            write16(value: 150, address: addr)
-            addr += 2
-
-            addr = opwrite(value: .lit, address: addr)
-            
-            /// 0xA is the pixel y position
-            write(value: (Bus.Device.display.rawValue << 4) | 0xA, address: addr)
-            addr += 1
-
-            addr = opwrite(value: .bso16, address: addr)
-
-            /// ---------  set the pixel color
-            
-            addr = opwrite(value: .lit, address: addr)
-            write(value: 2, address: addr)
-            addr += 1
-
-            addr = opwrite(value: .lit, address: addr)
-            /// 0xE is the pixel value and the signal to the display to push the pixel
-            write(value: (Bus.Device.display.rawValue << 4) | 0xE, address: addr)
-            addr += 1
-
-            addr = opwrite(value: .bso, address: addr)
-
-            infLoop(addr: addr)
-        }
-//        test42()
-//        testRot()
-//        testOvr()
-//        testLoop()
-//        testReadWrite8()
-        testBus()
-    }
-     */
     func clear() {
         bank = [UInt8](repeating: 0, count: 65536)
     }
